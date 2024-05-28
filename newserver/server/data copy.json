@@ -1,0 +1,1 @@
+{"actions": [{"id": "1", "name": "spell bind", "description": "binds a spell to a target"}, {"id": "2", "name": "spell cast", "description": "casts a spell"}], "triggers": ["new round start", "spell cast"], "actionsToTriggers": [{"actionId": "1", "triggerIds": ["new round start"]}, {"actionId": "2", "triggerIds": ["spell cast"]}]}
