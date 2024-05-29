@@ -19,6 +19,11 @@ export type AppData = {
    actionsToTriggers: ActionToTrigger[];
 };
 
+export type FormData = {
+   triggers: string[];
+   action: Action;
+};
+
 function App() {
    const [data, setData] = React.useState<AppData | null>(null);
    console.log("data", data);
@@ -110,9 +115,36 @@ function App() {
             Hover over me
          </div>
          {isReady && (
-            <Formik<AppData>
-               initialValues={formatInitialData(data)}
-               onSubmit={saveData}
+            <Formik<FormData>
+               initialValues={{
+                  triggers: [],
+                  action: {
+                     id: "",
+                     name: "",
+                  },
+               }}
+               onSubmit={(values) => {
+                  console.log("values", values);
+                  // const newData = {
+                  //    ...data,
+                  //    actions: [...data.actions, values.action],
+                  // };
+                  // setData(newData);
+                  const triggers = values.triggers[0].split(",");
+                  console.log("triggers", values.triggers);
+                  const newData: AppData = {
+                     triggers: values.triggers,
+                     actions: [...data.actions, values.action],
+                     actionsToTriggers: [
+                        {
+                           actionId: values.action.name,
+                           triggers: triggers,
+                        },
+                     ],
+                  };
+                  console.log("new data", newData);
+                  saveData(newData);
+               }}
             >
                {({ values, handleSubmit }) => (
                   <Form>
@@ -122,6 +154,118 @@ function App() {
                         name="firstName"
                         placeholder="First Name"
                      /> */}
+                     <label htmlFor="triggers[0]">Triggers</label>
+                     <Field name="triggers[0]" />
+                     <label htmlFor="action.name">Action Name</label>
+                     <Field name="action.name" />
+                     {/*export type Spell = {
+   concentration: boolean;
+   components: string;
+   spellShape: string;
+   uniqueSpellSaveDC: string;
+   spellLevel: string;
+   castingTime: string;
+   duration: string;
+   school: string;
+   isPrepared: boolean;
+};
+
+enum SpellShape {
+   Cone = "Cone",
+   Cube = "Cube",
+   Cylinder = "Cylinder",
+   Line = "Line",
+   Sphere = "Sphere",
+   Other = "Other",
+}
+
+export type Damage = {
+   diceType: DiceType;
+   numberOfDice: number;
+   //    damageType: string;
+};
+
+export type Rest = "short" | "long";
+
+export interface Action {
+   id: string;
+   name: string;
+   description?: string;
+   spell?: Spell;
+   damage?: Damage;
+   damageType?: string;
+   refreshesOn?: Rest;
+}*/}
+                     <label>
+                        Description
+                        <Field name="action.description" />
+                     </label>
+                     <label>
+                        Concentration
+                        <Field name="action.spell.concentration" />
+                     </label>
+                     <label>
+                        Components
+                        <Field name="action.spell.components" />
+                     </label>
+                     <label>
+                        Spell Shape
+                        <Field name="action.spell.spellShape" />
+                     </label>
+                     <label>
+                        Unique Spell Save DC
+                        <Field name="action.spell.uniqueSpellSaveDC" />
+                     </label>
+                     <label>
+                        Spell Level
+                        <Field name="action.spell.spellLevel" />
+                     </label>
+                     <label>
+                        Casting Time
+                        <Field name="action.spell.castingTime" />
+                     </label>
+                     <label>
+                        Duration
+                        <Field name="action.spell.duration" />
+                     </label>
+                     <label>
+                        School
+                        <Field name="action.spell.school" />
+                     </label>
+                     <label>
+                        Is Prepared
+                        <Field name="action.spell.isPrepared" />
+                     </label>
+                     <label>
+                        Dice Type
+                        <Field name="action.damage.diceType" />
+                     </label>
+                     <label>
+                        Number of Dice
+                        <Field name="action.damage.numberOfDice" />
+                     </label>
+                     <label>
+                        Damage Type
+                        <Field name="action.damageType" />
+                     </label>
+                     <label>
+                        Refreshes On
+                        <Field name="action.refreshesOn" />
+                     </label>
+                     {/* <Field name="action.description" />
+                     <Field name="action.spell.concentration" />
+                     <Field name="action.spell.components" />
+                     <Field name="action.spell.spellShape" />
+                     <Field name="action.spell.uniqueSpellSaveDC" />
+                     <Field name="action.spell.spellLevel" />
+                     <Field name="action.spell.castingTime" />
+                     <Field name="action.spell.duration" />
+                     <Field name="action.spell.school" />
+                     <Field name="action.spell.isPrepared" />
+                     <Field name="action.damage.diceType" />
+                     <Field name="action.damage.numberOfDice" />
+                     <Field name="action.damageType" />
+                     <Field name="action.refreshesOn" /> */}
                      <button type="submit">Submit</button>
                   </Form>
                   // <form onSubmit={handleSubmit}>
