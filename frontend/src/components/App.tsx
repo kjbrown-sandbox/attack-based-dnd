@@ -41,7 +41,7 @@ function App() {
    const [data, setData] = React.useState<AppData>({ actions: [] });
    console.log("data", data);
 
-   const triggers = useMemo(() => getTriggers(data.actions), data.actions);
+   const triggers = getTriggers(data.actions);
    console.log("triggers", triggers);
 
    useEffect(() => {
@@ -63,13 +63,14 @@ function App() {
 
    return (
       <>
-         {triggers.map((trigger) => {
-            // <TriggerBlock
-            //    actions={getActionsForTrigger(trigger, data.actions)}
-            //    trigger={trigger}
-            // />;
-            <>hi</>;
-         })}
+         {triggers.map((trigger) => (
+            <TriggerBlock
+               key={trigger}
+               actions={getActionsForTrigger(trigger, data.actions)}
+               trigger={trigger}
+            />
+            // <div>'hello'</div>;
+         ))}
          {isReady && (
             <Formik<FormData>
                initialValues={{
