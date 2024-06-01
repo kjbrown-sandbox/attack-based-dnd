@@ -1,46 +1,57 @@
-import React, { useEffect } from "react";
-// import * as fs from "fs";
+import React, { useEffect, useMemo } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import TriggerBlock, { Action } from "./TriggerBlock";
-// import { writeFileSync } from "fs";
 import fs, { write } from "fs";
 import { Field, Form, Formik } from "formik";
-import {
-   ActionWithTriggers,
-   loadData,
-   saveAction,
-   saveAllData,
-} from "../ServerRequests";
-
-export type ActionToTrigger = {
-   actionId: string;
-   triggers: string[];
-};
+import { loadData, saveAction, saveAllData } from "../ServerRequests";
 
 export type AppData = {
    actions: Action[];
-   triggers: string[];
-   actionsToTriggers: ActionToTrigger[];
 };
 
-export type FormData = {
-   triggers: string[];
-   action: Action;
+export type FormData = Action;
+
+const getTriggers = (actions: Action[]): string[] => {
+   const triggers: string[] = [];
+   actions.forEach((action) => {
+      action.triggers.forEach((trigger) => {
+         if (!triggers.includes(trigger)) {
+            triggers.push(trigger);
+         }
+      });
+   });
+   return triggers;
+};
+
+const getActionsForTrigger = (
+   trigger: string,
+   allActions: Action[]
+): Action[] => {
+   const actions: Action[] = [];
+   allActions.forEach((action) => {
+      if (action.triggers.includes(trigger)) {
+         actions.push(action);
+      }
+   });
+   return actions;
 };
 
 function App() {
-   const [data, setData] = React.useState<AppData | null>(null);
+   const [data, setData] = React.useState<AppData>({ actions: [] });
    console.log("data", data);
 
+   const triggers = useMemo(() => getTriggers(data.actions), data.actions);
+   console.log("triggers", triggers);
+
    useEffect(() => {
-      // console.log("getting data");
       const getData = async () => {
-         if (!data) {
+         if (data.actions.length === 0) {
             const timeoutID = setTimeout(async () => {
                const loadedData = await loadData();
                console.log("loadedData", loadedData);
-               setData(loadedData);
+
+               if (loadedData) setData(loadedData);
             }, 1000);
             return () => clearTimeout(timeoutID);
          }
@@ -50,122 +61,42 @@ function App() {
 
    const isReady = data !== null;
 
-   // load data from file "data.json"
-   //    const
-   // const data: AppData = {
-   //    actions: [
-   //       {
-   //          id: "1",
-   //          name: "spell bind",
-   //          description: "binds a spell to a target",
-   //       },
-   //       {
-   //          id: "2",
-   //          name: "spell cast",
-   //          description: "casts a spell",
-   //       },
-   //    ],
-   //    triggers: ["new round start", "spell cast"],
-   //    actionsToTriggers: [
-   //       {
-   //          actionId: "1",
-   //          triggers: ["new round start"],
-   //       },
-   //       {
-   //          actionId: "2",
-   //          triggers: ["spell cast"],
-   //       },
-   //    ],
-   // };
-   const formatInitialData = (data: AppData): AppData => {
-      return data;
-   };
-
-   // const addNewItem = (newItem: )
-
-   // write("data.json", JSON.stringify(data));
-   // const jsonData = JSON.stringify(data);
-   // now write jsonData to file
-
-   // fs.writeFileSync("data.json", jsonData);
-   // console.log("data.json written");
-
-   // save data to file "data.json"
-
-   const getActionsForTrigger = (trigger: string) => {
-      const actions: Action[] = [];
-      // debugger;
-      data?.actionsToTriggers.map(({ actionId, triggers }: ActionToTrigger) => {
-         if (triggers.includes(trigger)) {
-            const action = data.actions.find((a) => a.id === actionId);
-            if (action) {
-               actions.push(action);
-            }
-         }
-      });
-      return actions;
-   };
-
    return (
       <>
-         {data?.triggers.map((trigger, index) => (
-            <TriggerBlock
-               key={trigger}
-               triggeredOn={trigger}
-               actions={getActionsForTrigger(trigger)}
-            />
-         ))}
-         {/* <TriggerBlock
-            triggeredOn="new round start"
-            actions={[
-               {
-                  id: "1",
-                  name: "spell bind",
-                  description: "binds a spell to a target",
-               },
-               {
-                  id: "2",
-                  name: "spell cast",
-                  description: "casts a spell",
-               },
-            ]}
-         /> */}
-         <div
-            style={{ height: "100px", width: "100px" }}
-            // onClick={() =>
-            //    saveData(
-            //       data || { actions: [], triggers: [], actionsToTriggers: [] }
-            //    )
-            // }
-            onClick={loadData}
-         >
-            Hover over me
-         </div>
+         {triggers.map((trigger) => {
+            // <TriggerBlock
+            //    actions={getActionsForTrigger(trigger, data.actions)}
+            //    trigger={trigger}
+            // />;
+            <>hi</>;
+         })}
          {isReady && (
             <Formik<FormData>
                initialValues={{
+                  name: "",
                   triggers: [],
-                  action: {
-                     id: "",
-                     name: "",
-                  },
                }}
                onSubmit={async (values) => {
-                  console.log("values", values);
-                  // const newData = {
-                  //    ...data,
-                  //    actions: [...data.actions, values.action],
+                  // console.log("values", values);
+                  // // const newData = {
+                  // //    ...data,
+                  // //    actions: [...data.actions, values.action],
+                  // // };
+                  // // setData(newData);
+                  // const triggers = values.triggers[0].split(",");
+                  // const newAction: ActionWithTriggers = {
+                  //    action: values.action,
+                  //    triggers: values.triggers,
                   // };
-                  // setData(newData);
-                  const triggers = values.triggers[0].split(",");
-                  const newAction: ActionWithTriggers = {
-                     action: values.action,
-                     triggers: values.triggers,
-                  };
-                  console.log("new data", newAction);
-                  // await saveAllData(data);
-                  const newData = await saveAction(newAction);
-                  if (newData) setData(newData);
+                  // console.log("new data", newAction);
+                  // // await saveAllData(data);
+                  // const newData = await saveAction(newAction);
+                  // if (newData) setData(newData);
+
+                  const newData = await saveAction(data, values);
+                  debugger;
+                  setData(newData);
+                  await saveAllData(newData);
                }}
             >
                {({ values, handleSubmit }) => (
@@ -178,116 +109,78 @@ function App() {
                      /> */}
                      <label htmlFor="triggers[0]">Triggers</label>
                      <Field name="triggers[0]" />
-                     <label htmlFor="action.name">Action Name</label>
-                     <Field name="action.name" />
-                     {/*export type Spell = {
-   concentration: boolean;
-   components: string;
-   spellShape: string;
-   uniqueSpellSaveDC: string;
-   spellLevel: string;
-   castingTime: string;
-   duration: string;
-   school: string;
-   isPrepared: boolean;
-};
-
-enum SpellShape {
-   Cone = "Cone",
-   Cube = "Cube",
-   Cylinder = "Cylinder",
-   Line = "Line",
-   Sphere = "Sphere",
-   Other = "Other",
-}
-
-export type Damage = {
-   diceType: DiceType;
-   numberOfDice: number;
-   //    damageType: string;
-};
-
-export type Rest = "short" | "long";
-
-export interface Action {
-   id: string;
-   name: string;
-   description?: string;
-   spell?: Spell;
-   damage?: Damage;
-   damageType?: string;
-   refreshesOn?: Rest;
-}*/}
+                     <label htmlFor="name">Action Name</label>
+                     <Field name="name" />
                      <label>
                         Description
-                        <Field name="action.description" />
+                        <Field name="description" />
                      </label>
                      <label>
                         Concentration
-                        <Field name="action.spell.concentration" />
+                        <Field name="spell.concentration" />
                      </label>
                      <label>
                         Components
-                        <Field name="action.spell.components" />
+                        <Field name="spell.components" />
                      </label>
                      <label>
                         Spell Shape
-                        <Field name="action.spell.spellShape" />
+                        <Field name="spell.spellShape" />
                      </label>
                      <label>
                         Unique Spell Save DC
-                        <Field name="action.spell.uniqueSpellSaveDC" />
+                        <Field name="spell.uniqueSpellSaveDC" />
                      </label>
                      <label>
                         Spell Level
-                        <Field name="action.spell.spellLevel" />
+                        <Field name="spell.spellLevel" />
                      </label>
                      <label>
                         Casting Time
-                        <Field name="action.spell.castingTime" />
+                        <Field name="spell.castingTime" />
                      </label>
                      <label>
                         Duration
-                        <Field name="action.spell.duration" />
+                        <Field name="spell.duration" />
                      </label>
                      <label>
                         School
-                        <Field name="action.spell.school" />
+                        <Field name="spell.school" />
                      </label>
                      <label>
                         Is Prepared
-                        <Field name="action.spell.isPrepared" />
+                        <Field name="spell.isPrepared" />
                      </label>
                      <label>
                         Dice Type
-                        <Field name="action.damage.diceType" />
+                        <Field name="damage.diceType" />
                      </label>
                      <label>
                         Number of Dice
-                        <Field name="action.damage.numberOfDice" />
+                        <Field name="damage.numberOfDice" />
                      </label>
                      <label>
                         Damage Type
-                        <Field name="action.damageType" />
+                        <Field name="damageType" />
                      </label>
                      <label>
                         Refreshes On
-                        <Field name="action.refreshesOn" />
+                        <Field name="refreshesOn" />
                      </label>
-                     {/* <Field name="action.description" />
-                     <Field name="action.spell.concentration" />
-                     <Field name="action.spell.components" />
-                     <Field name="action.spell.spellShape" />
-                     <Field name="action.spell.uniqueSpellSaveDC" />
-                     <Field name="action.spell.spellLevel" />
-                     <Field name="action.spell.castingTime" />
-                     <Field name="action.spell.duration" />
-                     <Field name="action.spell.school" />
-                     <Field name="action.spell.isPrepared" />
-                     <Field name="action.damage.diceType" />
-                     <Field name="action.damage.numberOfDice" />
-                     <Field name="action.damageType" />
-                     <Field name="action.refreshesOn" /> */}
+                     {/* <Field name="description" />
+                     <Field name="spell.concentration" />
+                     <Field name="spell.components" />
+                     <Field name="spell.spellShape" />
+                     <Field name="spell.uniqueSpellSaveDC" />
+                     <Field name="spell.spellLevel" />
+                     <Field name="spell.castingTime" />
+                     <Field name="spell.duration" />
+                     <Field name="spell.school" />
+                     <Field name="spell.isPrepared" />
+                     <Field name="damage.diceType" />
+                     <Field name="damage.numberOfDice" />
+                     <Field name="damageType" />
+                     <Field name="refreshesOn" /> */}
                      <button type="submit">Submit</button>
                   </Form>
                   // <form onSubmit={handleSubmit}>

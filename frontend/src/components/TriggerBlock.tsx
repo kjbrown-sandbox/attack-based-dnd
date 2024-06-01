@@ -37,8 +37,8 @@ export type Damage = {
 export type Rest = "short" | "long";
 
 export interface Action {
-   id: string;
    name: string;
+   triggers: string[];
    description?: string;
    spell?: Spell;
    damage?: Damage;
@@ -47,14 +47,15 @@ export interface Action {
 }
 
 interface TriggerBlockProps {
-   triggeredOn: string;
+   trigger: string;
    actions: Action[];
 }
 
-function TriggerBlock({ triggeredOn, actions }: TriggerBlockProps) {
+function TriggerBlock({ trigger, actions }: TriggerBlockProps) {
+   console.log("in block", trigger, actions);
    return (
-      <div>
-         <h3>Triggered on: {triggeredOn}</h3>
+      <div style={{ width: "100px", margin: "50px" }}>
+         <h3>Triggered on: {trigger}</h3>
          <ul>
             {actions.map((action, index) => (
                <li key={index}>

@@ -10,23 +10,23 @@ CORS(app)
 
 DATA_FILE = 'data.json'
 
-# class Action:
-#    def __init__()
-class Item:
-    def __init__(self, action, triggers: List[str]):
-      self.action = action
-      self.triggers = triggers
+# # class Action:
+# #    def __init__()
+# class Item:
+#     def __init__(self, action, triggers: List[str]):
+#       self.action = action
+#       self.triggers = triggers
 
-class ActionToTriggers:
-   def __init__(self, actionId, triggers: List[str]):
-      self.actionId = actionId
-      self.triggers = triggers
+# class ActionToTriggers:
+#    def __init__(self, actionId, triggers: List[str]):
+#       self.actionId = actionId
+#       self.triggers = triggers
 
 class Database:
-   def __init__(self, actions: List[any], triggers: List[str], actionsToTrigger: List[ActionToTriggers]):
+   def __init__(self, actions: List[any]):
       self.actions = actions
-      self.triggers = triggers
-      self.actionsToTrigger = actionsToTrigger
+      # self.triggers = triggers
+      # self.actionsToTrigger = actionsToTrigger
 
 def load_data():
    if os.path.exists(DATA_FILE):
@@ -64,29 +64,29 @@ def save():
 #    save_data(all_data)
 #    return jsonify(data), 200
 
-@app.route('/save_action', methods=['POST'])
-def save_action():
-   # return {}, 200
-   data: Item = request.get_json()
-   print()
-   print()
-   print('save action received:', data)
-   if not data:
-      return jsonify({'error': 'No data provided'}), 400
-   data['action']['id'] = shortuuid.uuid()
+# @app.route('/save_action', methods=['POST'])
+# def save_action():
+#    # return {}, 200
+#    data: Item = request.get_json()
+#    print()
+#    print()
+#    print('save action received:', data)
+#    if not data:
+#       return jsonify({'error': 'No data provided'}), 400
+#    data['action']['id'] = shortuuid.uuid()
    
-   all_data: Database = load_data()
-   print('all data here:', all_data)
-   all_data['actions'].append(data['action'])
+#    all_data: Database = load_data()
+#    print('all data here:', all_data)
+#    all_data['actions'].append(data['action'])
 
-   all_data['actionsToTriggers'].append({
-      'actionId': data['action']['id'],
-      'triggers': data['triggers']
-   })
+#    all_data['actionsToTriggers'].append({
+#       'actionId': data['action']['id'],
+#       'triggers': data['triggers']
+#    })
 
-   # breakpoint()
-   save_data(all_data)
-   return jsonify(all_data), 200
+#    # breakpoint()
+#    save_data(all_data)
+#    return jsonify(all_data), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

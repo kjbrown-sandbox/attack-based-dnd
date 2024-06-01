@@ -1,1 +1,6 @@
-{"actions": [{"id": "SSireFTW8SEW4T3fZtPyqE", "name": "name 5"}], "triggers": [], "actionsToTriggers": [{"actionId": "SSireFTW8SEW4T3fZtPyqE", "triggers": ["trig 5"]}]}
+{
+   "actions": [
+      { "name": "name 1", "triggers": ["trig 1"], "description": "desc 1" },
+      { "name": "name 2", "triggers": ["trig 2"], "description": "desc 2" }
+   ]
+}
