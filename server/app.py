@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 import os
+import shortuuid
 
 app = Flask(__name__)
 CORS(app)
@@ -29,8 +30,8 @@ class Database:
 
 def load_data():
    if os.path.exists(DATA_FILE):
-       with open(DATA_FILE) as f:
-           return json.load(f)
+      with open(DATA_FILE) as f:
+         return json.load(f)
    return {}
 
 def save_data(data):
@@ -51,34 +52,41 @@ def save():
    save_data(data)
    return jsonify(data), 200
 
-@app.route('/save_trigger', methods=['POST'])
-def save_trigger():
-   data: Database = request.get_json()
-   if not data:
-      return jsonify({'error': 'No data provided'}), 400
+# @app.route('/save_trigger', methods=['POST'])
+# def save_trigger():
+#    data: Database = request.get_json()
+#    if not data:
+#       return jsonify({'error': 'No data provided'}), 400
    
-   all_data = load_data()
-   all_data['triggers'].append(data)
+#    all_data = load_data()
+#    all_data['triggers'].append(data)
 
-   save_data(all_data)
-   return jsonify(data), 200
+#    save_data(all_data)
+#    return jsonify(data), 200
 
 @app.route('/save_action', methods=['POST'])
 def save_action():
+   # return {}, 200
    data: Item = request.get_json()
+   print()
+   print()
+   print('save action received:', data)
    if not data:
       return jsonify({'error': 'No data provided'}), 400
+   data['action']['id'] = shortuuid.uuid()
    
    all_data: Database = load_data()
-   all_data.actions = all_data.actions.append(data.action)
+   print('all data here:', all_data)
+   all_data['actions'].append(data['action'])
 
-   all_data.actionsToTrigger.append({
-      'actionId': data.action.id,
+   all_data['actionsToTriggers'].append({
+      'actionId': data['action']['id'],
       'triggers': data['triggers']
    })
 
+   # breakpoint()
    save_data(all_data)
-   return jsonify(data), 200
+   return jsonify(all_data), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -6,7 +6,12 @@ import TriggerBlock, { Action } from "./TriggerBlock";
 // import { writeFileSync } from "fs";
 import fs, { write } from "fs";
 import { Field, Form, Formik } from "formik";
-import { loadData, saveData } from "../ServerRequests";
+import {
+   ActionWithTriggers,
+   loadData,
+   saveAction,
+   saveAllData,
+} from "../ServerRequests";
 
 export type ActionToTrigger = {
    actionId: string;
@@ -34,6 +39,7 @@ function App() {
          if (!data) {
             const timeoutID = setTimeout(async () => {
                const loadedData = await loadData();
+               console.log("loadedData", loadedData);
                setData(loadedData);
             }, 1000);
             return () => clearTimeout(timeoutID);
@@ -86,9 +92,30 @@ function App() {
 
    // save data to file "data.json"
 
+   const getActionsForTrigger = (trigger: string) => {
+      const actions: Action[] = [];
+      // debugger;
+      data?.actionsToTriggers.map(({ actionId, triggers }: ActionToTrigger) => {
+         if (triggers.includes(trigger)) {
+            const action = data.actions.find((a) => a.id === actionId);
+            if (action) {
+               actions.push(action);
+            }
+         }
+      });
+      return actions;
+   };
+
    return (
       <>
-         <TriggerBlock
+         {data?.triggers.map((trigger, index) => (
+            <TriggerBlock
+               key={trigger}
+               triggeredOn={trigger}
+               actions={getActionsForTrigger(trigger)}
+            />
+         ))}
+         {/* <TriggerBlock
             triggeredOn="new round start"
             actions={[
                {
@@ -102,7 +129,7 @@ function App() {
                   description: "casts a spell",
                },
             ]}
-         />
+         /> */}
          <div
             style={{ height: "100px", width: "100px" }}
             // onClick={() =>
@@ -123,7 +150,7 @@ function App() {
                      name: "",
                   },
                }}
-               onSubmit={(values) => {
+               onSubmit={async (values) => {
                   console.log("values", values);
                   // const newData = {
                   //    ...data,
@@ -131,19 +158,14 @@ function App() {
                   // };
                   // setData(newData);
                   const triggers = values.triggers[0].split(",");
-                  console.log("triggers", values.triggers);
-                  const newData: AppData = {
+                  const newAction: ActionWithTriggers = {
+                     action: values.action,
                      triggers: values.triggers,
-                     actions: [...data.actions, values.action],
-                     actionsToTriggers: [
-                        {
-                           actionId: values.action.name,
-                           triggers: triggers,
-                        },
-                     ],
                   };
-                  console.log("new data", newData);
-                  saveData(newData);
+                  console.log("new data", newAction);
+                  // await saveAllData(data);
+                  const newData = await saveAction(newAction);
+                  if (newData) setData(newData);
                }}
             >
                {({ values, handleSubmit }) => (
